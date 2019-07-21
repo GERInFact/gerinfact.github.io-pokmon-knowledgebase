@@ -44,6 +44,16 @@
       repository.splice(repository.indexOf(pokemon), 1);
     }
 
+    // Function to validate an object as pokemon
+    function isPokemon(item) {
+      return isObject(item) && isObjectEqual(item, new Pokemon());
+    }
+
+    // Function to validate an item as object
+    function isObject(item) {
+      return item !== null && item !== undefined && typeof item === "object";
+    }
+
     // Function to validate object equality
     function isObjectEqual(original, clone) {
       var originalProperties = Object.keys(original);
@@ -63,11 +73,15 @@
       return originalProperties.length === cloneProperties.length;
     }
 
+    function addListItem(pokemon) {
+      if (!isPokemon(pokemon)) return;
+    }
+
     return {
       add: add,
       getAll: getAll,
       getFiltered: getFiltered,
-      remove: remove,
+      remove: remove
     };
   })();
 })();
