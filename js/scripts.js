@@ -14,9 +14,14 @@
     var repository = [];
     var apiUrl = "https://pokeapi.co/api/v2/pokemon/?limit=150";
 
-    // Function to display pokemon entries 
-    
-
+    // Function to display pokemon entries
+    function renderPokemonCards() {
+      loadList().then(() => {
+        repository.forEach(p => {
+          addListItem(p);
+        });
+      });
+    }
 
     // Function to load pokemons from an external server
     function loadList() {
@@ -91,15 +96,15 @@
     function addListItem(pokemon) {
       if (!isPokemon(pokemon)) return;
 
-      $pokemonList.append(`<li class="pokemon-list_item-${pokemon.name}"><li>`);
+      $pokemonList.append(`<li class="pokemon-list_item-${pokemon.name}"></li>`);
       addItemButton(pokemon);
     }
 
     // Function to add an interactable button for the pokemon entry
     function addItemButton(pokemon) {
-      var $listItem = $(`pokemon-list_item-${pokemon.name}`);
+      var $listItem = $(`.pokemon-list_item-${pokemon.name}`);
       $listItem.append(
-        `<button id="${pokemon.name} class="item_button">${
+        `<button id="${pokemon.name}" class="item_button">${
           pokemon.name
         }</button>`
       );
@@ -119,7 +124,10 @@
       add: add,
       getAll: getAll,
       getFiltered: getFiltered,
-      remove: remove
+      remove: remove,
+      renderPokemonCards: renderPokemonCards
     };
   })();
+
+  pokemonRepository.renderPokemonCards();
 })();
