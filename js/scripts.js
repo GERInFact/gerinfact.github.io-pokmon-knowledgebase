@@ -14,6 +14,20 @@
     var repository = [];
     var apiUrl = "https://pokeapi.co/api/v2/pokemon/?limit=150";
 
+    // Function to display pokemon entries 
+    
+
+
+    // Function to load pokemons from an external server
+    function loadList() {
+      return $.ajax(apiUrl, { dataType: "json" })
+        .then(res => {
+          res.results.forEach(r => add(new Pokemon(r.name, r.url)));
+          //   addSearchFunctionality();
+        })
+        .catch(err => console.log(err));
+    }
+
     // Function to add a new pokemon
     function add(pokemon) {
       if (!isPokemon(pokemon)) return;
@@ -89,7 +103,7 @@
           pokemon.name
         }</button>`
       );
-      addItemButtonEvent(pokemon)
+      addItemButtonEvent(pokemon);
     }
 
     // Function to add an action for the pokemon entry button
