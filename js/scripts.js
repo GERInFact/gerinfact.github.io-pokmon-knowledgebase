@@ -96,7 +96,9 @@
     function addListItem(pokemon) {
       if (!isPokemon(pokemon)) return;
 
-      $pokemonList.append(`<li class="pokemon-list_item-${pokemon.name}"></li>`);
+      $pokemonList.append(
+        `<li class="pokemon-list_item-${pokemon.name}"></li>`
+      );
       addItemButton(pokemon);
     }
 
@@ -118,6 +120,21 @@
         e.preventDefault();
         showDetails(pokemon);
       });
+    }
+    // Function to show pokemon details
+    function showDetails(pokemon) {
+      if (!isPokemon(pokemon)) return;
+
+      loadDetails(pokemon).then(() => modalBox.show(pokemon));
+    }
+
+    // Function to load pokemon details form external server
+    function loadDetails(pokemon) {
+      return $.ajax(pokemon.detailsUrl, { dataType: "json" })
+        .then(res => {
+          pokemon.details = JSON.parse(JSON.stringify(res));
+        })
+        .catch(err => console.log(err));
     }
 
     return {
