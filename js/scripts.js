@@ -73,8 +73,32 @@
       return originalProperties.length === cloneProperties.length;
     }
 
+    // Function to add a pokemon entry
     function addListItem(pokemon) {
       if (!isPokemon(pokemon)) return;
+
+      $pokemonList.append(`<li class="pokemon-list_item-${pokemon.name}"><li>`);
+      addItemButton(pokemon);
+    }
+
+    // Function to add an interactable button for the pokemon entry
+    function addItemButton(pokemon) {
+      var $listItem = $(`pokemon-list_item-${pokemon.name}`);
+      $listItem.append(
+        `<button id="${pokemon.name} class="item_button">${
+          pokemon.name
+        }</button>`
+      );
+      addItemButtonEvent(pokemon)
+    }
+
+    // Function to add an action for the pokemon entry button
+    function addItemButtonEvent(pokemon) {
+      var $itemButton = $(`#${pokemon.name}`);
+      $itemButton.on("click", e => {
+        e.preventDefault();
+        showDetails(pokemon);
+      });
     }
 
     return {
