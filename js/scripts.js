@@ -9,6 +9,118 @@
     this.detailsUrl = detailsUrl;
   }
 
+  var modalBox = (function() {
+    var $modalContainer = $("#modal-container");
+
+    // Function to hide pokemon details
+    function hide() {
+      $modalContainer.hide();
+    }
+
+    // Function to display pokemon details
+    function show(pokemon) {
+      if (!$modalContainer) return;
+
+      $modalContainer.innerHTML = "";
+      $modalContainer.show();
+      addModal();
+      var $modal = $(".modal");
+      setModalContent($modal, pokemon);
+      renderModal($modal);
+    }
+
+    // Function to create modal box for pokemon details
+    function addModal() {
+      requestAnimationFrame(() => {
+        $modalContainer.append('<div class="modal"></div>');
+      });
+    }
+
+    // Function to create modal box content
+    function setModalContent($modal, pokemon) {
+      if (!pokemon || !$modal) return;
+
+      addHeader($modal, pokemon);
+      // TODO REVISE WITH JQUERY
+      $modal.appendChild(getImage(pokemon.details));
+      $modal.appendChild(getInfos(pokemon.details));
+    }
+
+    // Function to create modal header
+    function addHeader($modal, pokemon) {
+      $modal.append('<div class="modal_header"></div>');
+      setCloseButton($modal);
+      addTitle($modal, pokemon);
+    }
+
+    // Function to create close button
+    function setCloseButton($modal) {
+      $modal.append('<button class="modal_close">Close</button>');
+      var $closeButton = $(".modal_close");
+      $closeButton.on("click", hide);
+    }
+
+    // Function to create modal box title
+    function addTitle($modal, pokemon) {
+      $modal.append(`<h2 class="modal_title">${pokemon.name}</h2>`);
+    }
+
+    // Function to get modal box image
+    function getImage(pokemonDetails) {
+      var image = document.createElement("img");
+      image.setAttribute("src", pokemonDetails.sprites.front_default);
+      image.setAttribute(
+        "alt",
+        `The front view of ${pokemonDetails.species.name}`
+      );
+      image.classList.add("modal_image");
+      return image;
+    }
+
+    // Function to get modal box info text
+    function getInfos(pokemonDetails) {
+      var textContainer = document.createElement("div");
+      textContainer.classList.add("modal_text-container");
+
+      Object.keys(pokemonDetails).forEach(p => {
+        if (!Array.isArray(pokemonDetails[p]) && !isObject(pokemonDetails[p])) {
+          textContainer.appendChild(getInfoElement(pokemonDetails, p));
+        }
+      });
+
+      return textContainer;
+    }
+
+    // Function to get info texts subtext
+    function getInfoElement(pokemonDetails, property) {
+      var info = document.createElement("p");
+      info.classList.add("text-container_item");
+      info.innerText = `${property}: ${pokemonDetails[property]}`;
+      return info;
+    }
+
+    // Function to close modal on ESCAPE pressed
+    window.addEventListener("keydown", e => {
+      if (e.key !== "Escape") return;
+
+      hide();
+    });
+
+    // Function to close modal, if clicked around it
+    $modalContainer.addEventListener("click", e => {
+      e.preventDefault();
+
+      if (e.target !== $modalContainer) return;
+
+      hide();
+    });
+
+    return {
+      show: show,
+      hide: hide
+    };
+  })();
+
   // List which contains all pokemons to display
   var pokemonRepository = (function() {
     var repository = [];
