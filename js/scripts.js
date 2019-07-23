@@ -2,6 +2,30 @@
   // DOM Elements
   var $pokemonList = $(".main-content_pokemon-list");
 
+  // Function to validate an item as object
+  function isObject(item) {
+    return item !== null && item !== undefined && typeof item === "object";
+  }
+
+  // Function to validate object equality
+  function isObjectEqual(original, clone) {
+    var originalProperties = Object.keys(original);
+    var cloneProperties = Object.keys(clone);
+
+    if (!isPropertyCountEqual(originalProperties, cloneProperties))
+      return false;
+
+    for (var i = 0; i < originalProperties.length; i++)
+      if (originalProperties[i] !== cloneProperties[i]) return false;
+
+    return true;
+  }
+
+  // Function to validate property count equality
+  function isPropertyCountEqual(originalProperties, cloneProperties) {
+    return originalProperties.length === cloneProperties.length;
+  }
+
   // Container for storing pokemon relevant data
   function Pokemon(name, detailsUrl) {
     this.name = name;
@@ -14,7 +38,7 @@
 
     // Function to hide pokemon details
     function hide() {
-      $modalContainer.hide();
+      $modalContainer.removeClass("is-visible");
     }
 
     // Function to display pokemon details
@@ -22,18 +46,15 @@
       if (!$modalContainer) return;
 
       $modalContainer.empty();
-      $modalContainer.show();
+      $modalContainer.addClass("is-visible");
       addModal();
       var $modal = $(".modal");
       setModalContent($modal, pokemon);
-      renderModal($modal);
     }
 
     // Function to create modal box for pokemon details
     function addModal() {
-      requestAnimationFrame(() => {
-        $modalContainer.append('<div class="modal"></div>');
-      });
+      $modalContainer.append('<div class="modal"></div>');
     }
 
     // Function to create modal box content
@@ -41,16 +62,16 @@
       if (!pokemon || !$modal) return;
 
       addHeader($modal, pokemon);
-      // TODO REVISE WITH JQUERY
-      $modal.appendChild(addImage(pokemon.details));
-      $modal.appendChild(getInfos(pokemon.details));
+      addImage($modal, pokemon.details);
+      addInfos($modal, pokemon.details);
     }
 
     // Function to create modal header
     function addHeader($modal, pokemon) {
       $modal.append('<div class="modal_header"></div>');
-      setCloseButton($modal);
-      addTitle($modal, pokemon);
+      $modalHeader = $(".modal_header");
+      setCloseButton($modalHeader);
+      addTitle($modalHeader, pokemon);
     }
 
     // Function to create close button
@@ -66,7 +87,7 @@
     }
 
     // Function to get modal box image
-    function addImage(pokemonDetails) {
+    function addImage($modal, pokemonDetails) {
       $modal.append(
         `<img src="${
           pokemonDetails.sprites.front_default
@@ -77,25 +98,25 @@
     }
 
     // Function to get modal box info text
-    function getInfos(pokemonDetails) {
-      var textContainer = document.createElement("div");
-      textContainer.classList.add("modal_text-container");
+    function addInfos($modal, pokemonDetails) {
+      $modal.append(`<div class="modal_text-container"></div>`);
+
+      $textContainer = $(".modal_text-container");
 
       Object.keys(pokemonDetails).forEach(p => {
         if (!Array.isArray(pokemonDetails[p]) && !isObject(pokemonDetails[p])) {
-          textContainer.appendChild(getInfoElement(pokemonDetails, p));
+          addInfoElement(pokemonDetails, p, $textContainer);
         }
       });
-
-      return textContainer;
     }
 
     // Function to get info texts subtext
-    function getInfoElement(pokemonDetails, property) {
-      var info = document.createElement("p");
-      info.classList.add("text-container_item");
-      info.innerText = `${property}: ${pokemonDetails[property]}`;
-      return info;
+    function addInfoElement(pokemonDetails, property, $textContainer) {
+      $textContainer.append(
+        `<p class="text-container_item">${property}: ${
+          pokemonDetails[property]
+        }</p>`
+      );
     }
 
     // Function to close modal on ESCAPE pressed
@@ -106,10 +127,10 @@
     });
 
     // Function to close modal, if clicked around it
-    $modalContainer.addEventListener("click", e => {
+    $modalContainer.on("click", e => {
       e.preventDefault();
 
-      if (e.target !== $modalContainer) return;
+      if ($modalContainer[0] !== e.target) return;
 
       hide();
     });
@@ -139,9 +160,52 @@
       return $.ajax(apiUrl, { dataType: "json" })
         .then(res => {
           res.results.forEach(r => add(new Pokemon(r.name, r.url)));
-          //   addSearchFunctionality();
+          addSearchFunctionality();
         })
         .catch(err => console.log(err));
+    }
+
+    // Function to display searched pokemon details
+    function addSearchFunctionality() {
+      var $searchBar = $(".search_bar");
+      var $searchSubmit = $(".search_submit");
+      if (!($searchBar && $searchSubmit)) return;
+
+      // Function to display found pokemon
+      $searchSubmit.on("click", e => {
+        e.preventDefault();
+        if (!$searchBar.value) return;
+
+        showFound($searchBar.value, $searchBar);
+      });
+
+      // Function to display found pokemon
+      $searchBar.on("keydown", e => {
+        if (e.keyCode !== 13) return;
+
+        showFound(e.target.value, $searchBar);
+      });
+    }
+
+    // Function to show details of pokemon searched for
+    function showFound(filter, $searchBar) {
+      if (!filter || !$searchBar) return;
+
+      var pokemonFound = getFiltered(filter).shift();
+      if (pokemonFound) showDetails(pokemonFound);
+      else showNotFoundMessage($searchBar);
+    }
+
+    // Function to show pokemon could not be found
+    function showNotFoundMessage($searchBar) {
+      if (!$searchBar) return;
+
+      $searchBar.parent().append(
+        "<p class='not-found-message'>Pokémon not found.<p>"
+      );
+      setTimeout(() => {
+        $(".not-found-message").remove();
+      }, 1000);
     }
 
     // Function to add a new pokemon
@@ -177,30 +241,6 @@
     // Function to validate an object as pokemon
     function isPokemon(item) {
       return isObject(item) && isObjectEqual(item, new Pokemon());
-    }
-
-    // Function to validate an item as object
-    function isObject(item) {
-      return item !== null && item !== undefined && typeof item === "object";
-    }
-
-    // Function to validate object equality
-    function isObjectEqual(original, clone) {
-      var originalProperties = Object.keys(original);
-      var cloneProperties = Object.keys(clone);
-
-      if (!isPropertyCountEqual(originalProperties, cloneProperties))
-        return false;
-
-      for (var i = 0; i < originalProperties.length; i++)
-        if (originalProperties[i] !== cloneProperties[i]) return false;
-
-      return true;
-    }
-
-    // Function to validate property count equality
-    function isPropertyCountEqual(originalProperties, cloneProperties) {
-      return originalProperties.length === cloneProperties.length;
     }
 
     // Function to add a pokemon entry
