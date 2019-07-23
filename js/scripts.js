@@ -42,7 +42,7 @@
 
       addHeader($modal, pokemon);
       // TODO REVISE WITH JQUERY
-      $modal.appendChild(getImage(pokemon.details));
+      $modal.appendChild(addImage(pokemon.details));
       $modal.appendChild(getInfos(pokemon.details));
     }
 
@@ -66,15 +66,14 @@
     }
 
     // Function to get modal box image
-    function getImage(pokemonDetails) {
-      var image = document.createElement("img");
-      image.setAttribute("src", pokemonDetails.sprites.front_default);
-      image.setAttribute(
-        "alt",
-        `The front view of ${pokemonDetails.species.name}`
+    function addImage(pokemonDetails) {
+      $modal.append(
+        `<img src="${
+          pokemonDetails.sprites.front_default
+        }" alt="The front view of ${
+          pokemonDetails.species.name
+        }" class="modal_image">`
       );
-      image.classList.add("modal_image");
-      return image;
     }
 
     // Function to get modal box info text
