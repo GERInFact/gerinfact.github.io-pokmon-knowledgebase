@@ -174,9 +174,9 @@
       // Function to display found pokemon
       $searchSubmit.on("click", e => {
         e.preventDefault();
-        if (!$searchBar.value) return;
+        if (!$searchBar.val()) return;
 
-        showFound($searchBar.value, $searchBar);
+        showFound($searchBar.val(), $searchBar);
       });
 
       // Function to display found pokemon
