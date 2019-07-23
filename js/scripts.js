@@ -21,7 +21,7 @@
     function show(pokemon) {
       if (!$modalContainer) return;
 
-      $modalContainer.innerHTML = "";
+      $modalContainer.empty();
       $modalContainer.show();
       addModal();
       var $modal = $(".modal");
